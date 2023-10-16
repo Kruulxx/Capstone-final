@@ -52,7 +52,7 @@ class ClassesResource extends Resource
     protected static ?string $navigationLabel = 'Classes/Sections';
 
     protected static ?string $navigationGroup = 'School Year Records';
-    protected static ?string $navigationIcon = 'heroicon-o-collection';
+    protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
     public static function form(Form $form): Form
     {

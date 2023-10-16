@@ -80,7 +80,7 @@ class StudentDiplomaExport implements ShouldAutoSize
     {
         // Load the PDF template
         $pdf = new Pdf(public_path('\diploma.pdf'), [
-            'command' => 'C:\Program Files (x86)\PDFtk Server\bin\pdftk.exe',
+            'command' => 'C:\Program Files (x86)\PDFtk\bin\pdftk.exe',
             'useExec' => true,
         ]);
         
@@ -114,7 +114,7 @@ class StudentDiplomaExport implements ShouldAutoSize
         $fieldMappings['positionEnglishRight'] = "Schools Division Superintendent";
         $fieldMappings['sds'] = (SchoolYear::where('id', $this->class->school_year_id)->first()->sds);
         $fieldMappings['lrn'] = $this->studentInfo->lrn;
-        $fieldMappings['track '] = $this->course;
+        $fieldMappings['track'] = strtoupper ($this->course);
         $fieldMappings['Teacher'] = User::where('id', $this->class->adviser_id)->first()->name;
         $fieldMappings['petsa'] = (SchoolYear::where('id', $this->class->school_year_id)->first()->completion);
         $fieldMappings['date'] = (SchoolYear::where('id', $this->class->school_year_id)->first()->completion);

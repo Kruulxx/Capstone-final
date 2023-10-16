@@ -50,7 +50,7 @@ class SubjectLoadResource extends Resource
     protected static ?string $navigationLabel = 'Subject Loads';
 
     protected static ?string $navigationGroup = 'School Year Records';
-    protected static ?string $navigationIcon = 'heroicon-o-collection';
+    protected static ?string $navigationIcon = 'heroicon-o-bookmark';
 
     protected static function shouldRegisterNavigation(): bool
     {

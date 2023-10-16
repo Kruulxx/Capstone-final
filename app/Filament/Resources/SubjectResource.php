@@ -36,7 +36,7 @@ class SubjectResource extends Resource
     protected static ?string $model = Subject::class;
 
     protected static ?string $navigationGroup = 'School Archive';
-    protected static ?string $navigationIcon = 'heroicon-o-collection';
+    protected static ?string $navigationIcon = 'heroicon-o-book-open';
 
     public static function form(Form $form): Form
     {

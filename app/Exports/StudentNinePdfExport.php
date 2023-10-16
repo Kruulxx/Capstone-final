@@ -50,25 +50,25 @@ class StudentNinePdfExport implements ShouldAutoSize
         $subjectSem2 = SubjectLoad::where('class_id', $class->id)->where('semester', 2)->get();
 
         if($class->track_course == 'ABM'){
-            $this->course = 'Academic Track - Accountancy, Business and Management (ABM)';
+            $this->course = 'Accountancy, Business and Management (ABM)';
         } else if($class->track_course == 'STEM'){
-            $this->course = 'Academic Track - Science, Technology, Engineering, and Mathematics (STEM)';
+            $this->course = ' Science, Technology, Engineering, and Mathematics (STEM)';
         } else if($class->track_course == 'HUMSS'){
-            $this->course = 'Academic Track -Humanities and Social Sciences (HUMSS)';
+            $this->course = 'Humanities and Social Sciences (HUMSS)';
         } else if($class->track_course == 'GAS'){
-            $this->course = 'Academic Track - General Academic Strand (GAS)';
+            $this->course = 'General Academic Strand (GAS)';
         } else if($class->track_course == 'ADT'){
             $this->course = 'Arts and Design Track';
         } else if($class->track_course == 'ST'){
             $this->course = 'Sports Track';
         } else if($class->track_course == 'TVL - AFA'){
-            $this->course = 'TVL Track -  Agricultural-Fishery Arts (AFA)';
+            $this->course = 'Agricultural-Fishery Arts (AFA)';
         } else if($class->track_course == 'TVL - HE'){
-            $this->course = 'TVL Track -  Home Economics (HE)';
+            $this->course = 'Home Economics (HE)';
         } else if($class->track_course == 'TVL - IA'){
-            $this->course = 'TVL Track -  Industrial Arts (IA)';
+            $this->course = 'Industrial Arts (IA)';
         } else if($class->track_course == 'TVL - ICT'){
-            $this->course = 'TVL Track -  Information and Communications Technology (ICT)';
+            $this->course = ' Information and Communications Technology (ICT)';
         }
 
         
@@ -84,8 +84,8 @@ class StudentNinePdfExport implements ShouldAutoSize
     public function generatePdf()
     {
         // Load the PDF template
-        $pdf = new Pdf(public_path('\sf9-form.pdf'), [
-            'command' => 'C:\Program Files (x86)\PDFtk Server\bin\pdftk.exe',
+        $pdf = new Pdf(public_path('\SF9-M3GFinals.pdf'), [
+            'command' => 'C:\Program Files (x86)\PDFtk\bin\pdftk.exe',
             'useExec' => true,
         ]);
         
@@ -98,7 +98,7 @@ class StudentNinePdfExport implements ShouldAutoSize
         // Send the file download response
         // return response()->download(public_path('\filled.pdf'), 'filled.pdf')->deleteFileAfterSend();
         return response()->file(public_path('\SF9 - '.$this->studentInfo->lname.', '.$this->studentInfo->fname.' '.$this->studentInfo->mname.'.pdf'), [
-            'Content-Disposition' => 'inline; filename="filled.pdf"'
+             'Content-Disposition' => 'inline; filename="'.$this->studentInfo->lname.', '.$this->studentInfo->fname.' '.$this->studentInfo->mname.'"SF9".pdf"'
         ])->deleteFileAfterSend();
     }
 
@@ -116,94 +116,95 @@ class StudentNinePdfExport implements ShouldAutoSize
         $fieldMappings['Grade'] = $this->class->grade_level;
         $fieldMappings['Section'] = $this->class->section;
         $fieldMappings['School Year'] = (SchoolYear::where('id', $this->class->school_year_id)->first()->sydate).' - '.(SchoolYear::where('id', $this->class->school_year_id)->first()->sydate+1);
-        $fieldMappings['Principal'] = (SchoolYear::where('id', $this->class->school_year_id)->first()->principal);
+        $fieldMappings['Principal'] = strtoupper(SchoolYear::where('id', $this->class->school_year_id)->first()->principal);
         $fieldMappings['LRN'] = $this->studentInfo->lrn;
-        $fieldMappings['TrackCourse'] = $this->course;
+        $fieldMappings['Strand'] = $this->course;
         $fieldMappings['Teacher'] = User::where('id', $this->class->adviser_id)->first()->name;
 
 
 // SUBJECT NAMES ==========================================================
 
-        $sem1List = [];
-        $sem2List = [];
+            $sem1List = [];
+            $sem2List = [];
 
-        foreach ($this->subjectSem1 as $index => $subject) {
-            $sem1List[$index]['type'] = Subject::where('id', $subject->subject_id)->first()->subject_type;
-            $sem1List[$index]['name'] = Subject::where('id', $subject->subject_id)->first()->subject_name;
-            $sem1List[$index]['grade'] = collect($subject->student_grades)->where('name', $this->studentId)->first();
-        }
+            foreach ($this->subjectSem1 as $index => $subject) {
+                $sem1List[$index]['type'] = Subject::where('id', $subject->subject_id)->first()->subject_type;
+                $sem1List[$index]['name'] = Subject::where('id', $subject->subject_id)->first()->subject_name;
+                $sem1List[$index]['grade'] = collect($subject->student_grades)->where('name', $this->studentId)->first();
+            }
 
-        foreach ($this->subjectSem2 as $index => $subject) {
-            $sem2List[$index]['type'] = Subject::where('id', $subject->subject_id)->first()->subject_type;
-            $sem2List[$index]['name'] = Subject::where('id', $subject->subject_id)->first()->subject_name;
-            $sem2List[$index]['grade'] = collect($subject->student_grades)->where('name', $this->studentId)->first();
-        }
+            foreach ($this->subjectSem2 as $index => $subject) {
+                $sem2List[$index]['type'] = Subject::where('id', $subject->subject_id)->first()->subject_type;
+                $sem2List[$index]['name'] = Subject::where('id', $subject->subject_id)->first()->subject_name;
+                $sem2List[$index]['grade'] = collect($subject->student_grades)->where('name', $this->studentId)->first();
+            }
 
 
-        // 1st Semester
-        $averages = [];
-        // Core Subjects
-        $newIndex = 1;
-        foreach ($sem1List as $index => $subject) {
+            // 1st Semester
+            $averages = [];
+            // Core Subjects
+            $newIndex = 1;
+            foreach ($sem1List as $index => $subject) {
             if($subject["type"] == "Core"){
-                $fieldMappings["core{$newIndex}"] = $subject["name"];
-                $fieldMappings["core{$newIndex}G1"] = $subject["grade"]["1st_quarter_grade"];
-                $fieldMappings["core{$newIndex}G2"] = $subject["grade"]["2nd_quarter_grade"];
-                $fieldMappings["core{$newIndex}G3"] = $subject["grade"]["average"];
-                $newIndex++;
-                $averages[] = $subject["grade"]["average"] ?? 0;
+            $fieldMappings["S1Core{$newIndex}"] = $subject["name"];
+            $fieldMappings["S1Q1Core{$newIndex}"] = $subject["grade"]["1st_quarter_grade"];
+            $fieldMappings["S1Q2Core{$newIndex}"] = $subject["grade"]["2nd_quarter_grade"];
+            $fieldMappings["S1FG1Core{$newIndex}"] = $subject["grade"]["average"];
+            $newIndex++;
+            $averages[] = $subject["grade"]["average"] ?? 0;
 
+                }
             }
-        }
-        // Applied Subjects
-        $newIndex = 1;
-        foreach ($sem1List as $index => $subject) {
+            // Applied Subjects
+
+            $newIndex = 1;
+            foreach ($sem1List as $index => $subject) {
             if($subject["type"] != "Core"){
-                $fieldMappings["Ap{$newIndex}"] = $subject["name"];
-                $fieldMappings["Ap{$newIndex}G1"] = $subject["grade"]["1st_quarter_grade"];
-                $fieldMappings["Ap{$newIndex}G2"] = $subject["grade"]["2nd_quarter_grade"];
-                $fieldMappings["Ap{$newIndex}G3"] = $subject["grade"]["average"];
-                $newIndex++;
-                $averages[] = $subject["grade"]["average"] ?? 0;
+            $fieldMappings["S1Applied{$newIndex}"] = $subject["name"];
+            $fieldMappings["S1Q1Applied{$newIndex}"] = $subject["grade"]["1st_quarter_grade"];
+            $fieldMappings["S1Q2Applied{$newIndex}"] = $subject["grade"]["2nd_quarter_grade"];
+            $fieldMappings["S1FG1Applied{$newIndex}"] = $subject["grade"]["average"];
+            $newIndex++;
+            $averages[] = $subject["grade"]["average"] ?? 0;
 
+                }
             }
-        }
 
-        if($averages != []){
-            $fieldMappings['GA1'] = array_sum($averages) / count($averages);
-        }
+            if($averages != []){
+                $fieldMappings['S1GenAve'] = array_sum($averages) / count($averages);
+            }
 
-        // 2nd Semester
-        $averages = [];
-        // Core Subjects
-        $newIndex = 1;
-        foreach ($sem2List as $index => $subject) {
+            // 2nd Semester
+            $averages = [];
+            // Core Subjects
+            $newIndex = 1;
+            foreach ($sem2List as $index => $subject) {
             if($subject["type"] == "Core"){
-                $fieldMappings["sem2core{$newIndex}"] = $subject["name"];
-                $fieldMappings["sem2core{$newIndex}G1"] = $subject["grade"]["1st_quarter_grade"];
-                $fieldMappings["sem2core{$newIndex}G2"] = $subject["grade"]["2nd_quarter_grade"];
-                $fieldMappings["sem2core{$newIndex}G3"] = $subject["grade"]["average"];
-                $newIndex++;
-                $averages[] = $subject["grade"]["average"] ?? 0;
+            $fieldMappings["S2Core{$newIndex}"] = $subject["name"];
+            $fieldMappings["S2Q1Core{$newIndex}"] = $subject["grade"]["1st_quarter_grade"];
+            $fieldMappings["S2Q2Core{$newIndex}"] = $subject["grade"]["2nd_quarter_grade"];
+            $fieldMappings["S2FG1Core{$newIndex}"] = $subject["grade"]["average"];
+            $newIndex++;
+            $averages[] = $subject["grade"]["average"] ?? 0;
+                }
             }
-        }
-        // Applied Subjects
-        // dd($sem2List);
-        $newIndex = 1;
-        foreach ($sem2List as $index => $subject) {
+            // Applied Subjects
+            // dd($sem2List);
+            $newIndex = 1;
+            foreach ($sem2List as $index => $subject) {
             if($subject["type"] != "Core"){
-                $fieldMappings["sem2ap{$newIndex}"] = $subject["name"];
-                $fieldMappings["sem2ap{$newIndex}G1"] = $subject["grade"]["1st_quarter_grade"];
-                $fieldMappings["sem2ap{$newIndex}G2"] = $subject["grade"]["2nd_quarter_grade"];
-                $fieldMappings["sem2ap{$newIndex}G3"] = $subject["grade"]["average"];
-                $newIndex++;
-                $averages[] = $subject["grade"]["average"] ?? 0;
+            $fieldMappings["S2Applied{$newIndex}"] = $subject["name"];
+            $fieldMappings["S2Q1Applied{$newIndex}"] = $subject["grade"]["1st_quarter_grade"];
+            $fieldMappings["S2Q2Applied{$newIndex}"] = $subject["grade"]["2nd_quarter_grade"];
+            $fieldMappings["S2FG1Applied{$newIndex}"] = $subject["grade"]["average"];
+            $newIndex++;
+            $averages[] = $subject["grade"]["average"] ?? 0;
+                }
             }
-        }
 
-        if($averages != []){
-            $fieldMappings['GA2'] = array_sum($averages) / count($averages);
-        }
+            if($averages != []){
+                $fieldMappings['S2GenAve'] = array_sum($averages) / count($averages);
+            }
 
         return $fieldMappings;
     }
